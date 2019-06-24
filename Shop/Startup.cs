@@ -34,7 +34,7 @@ namespace Shop
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            //services.AddSignalR().AddAzureSignalR(connectionString: "Endpoint=https://vssummit2019.service.signalr.net;AccessKey=CatjKRXQpG2Bz0W2qHmR+29q+FEGDmIKdfjZ6mlcOSU=;Version=1.0;");
+            //services.AddSignalR().AddAzureSignalR(connectionString: "");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

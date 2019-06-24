@@ -1,0 +1,145 @@
+﻿@model Shop.Models.Product
+@{
+    ViewData["Title"] = "Home Page";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Shop</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <section class="product">
+        <div class="product__photo">
+            <div class="photo-container">
+                <div class="photo-main">
+                    <div class="controls">
+                        <i class="material-icons">share</i>
+                        <i class="material-icons">favorite_border</i>
+                    </div>
+                    <img src="https://res.cloudinary.com/john-mantas/image/upload/v1537291846/codepen/delicious-apples/green-apple-with-slice.png" alt="green apple slice">
+                </div>
+                <div class="photo-album">
+                    <ul>
+                        <li><img src="https://res.cloudinary.com/john-mantas/image/upload/v1537302064/codepen/delicious-apples/green-apple2.png" alt="green apple"></li>
+                        <li><img src="https://res.cloudinary.com/john-mantas/image/upload/v1537303532/codepen/delicious-apples/half-apple.png" alt="half apple"></li>
+                        <li><img src="https://res.cloudinary.com/john-mantas/image/upload/v1537303160/codepen/delicious-apples/green-apple-flipped.png" alt="green apple"></li>
+                        <li><img src="https://res.cloudinary.com/john-mantas/image/upload/v1537303708/codepen/delicious-apples/apple-top.png" alt="apple top"></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="product__info">
+            <div class="title">
+                <h1 id="product-name">@Model.Name</h1>
+                <span id="product-code">COD: @Model.Code</span>
+            </div>
+            <div class="price">
+                R$ <span id="product-price">@Model.Price</span>
+            </div>
+            <div class="variant">
+                <h3>SELECIONE UMA COR</h3>
+                <ul id="product-images">
+                    @foreach (var image in Model.Images)
+                    {
+                        <li><img src="@image"></li>
+                    }
+                </ul>
+            </div>
+            <div class="description">
+                <h3>BENEFÍCIOS</h3>
+                <ul id="product-benefits">
+                    @foreach (var benefit in Model.Benefits)
+                    {
+                        <li>@benefit</li>
+                    }
+                </ul>
+            </div>
+
+            <div class="modal alert alert-danger fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <div>Connection Error...</div>
+                            <div><strong style="font-size: 1.5em;">Hit Refresh/F5</strong> to rejoin. ;)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="buy--btn">ADICIONAR AO CARRINHO</button>
+        </div>
+    </section>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@@aspnet/signalr@1.1.0/dist/browser/signalr.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"
+            integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+            crossorigin="anonymous"></script>
+    <!--Add script to update the page and send messages.-->
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+
+            function onConnected(connection) {
+                console.log('connection started');
+                //connection.send('notify', '_SYSTEM_', ' STARTED');
+            }
+
+            function onConnectionError(error) {
+                if (error && error.message) {
+                    console.error(error.message);
+                }
+                this.hu
+                //var modal = document.getElementById('myModal');
+                //modal.classList.add('in');
+                //modal.style = 'display: block;';
+            }
+
+            function bindConnectionMessage(connection) {
+                // Create a function that the hub can call to broadcast messages.
+
+                var notifyCallback = function (id) {
+                    if (!id) return;
+
+                    $.getJSON('/home/Refresh?id=' + id, null, function (data) {
+                        if (!!data)
+                        {
+                            var obj = data;
+
+                            $("#product-name").html(obj.name);
+                            $("#product-price").html(obj.price.toString().replace(".",","));
+
+                            $("#product-benefits").empty();
+
+                            $.each(data.benefits, function (index, value) {
+                                $("#product-benefits").append($("<li>").text(value));
+                            });
+                        }
+
+                        console.log("refreshhhhhh");
+                        console.log(data);
+                    });
+                };
+
+                connection.on('notify', notifyCallback);
+                connection.onclose(onConnectionError);
+            }
+
+            var connection = new signalR.HubConnectionBuilder()
+                .withUrl('')  //negotiate url
+                .build();
+            bindConnectionMessage(connection);
+            connection.start()
+                .then(function () {
+                    onConnected(connection);
+                })
+                .catch(function (error) {
+                    console.error(error.message);
+                });
+        });
+    </script>
+</body>
+</html>

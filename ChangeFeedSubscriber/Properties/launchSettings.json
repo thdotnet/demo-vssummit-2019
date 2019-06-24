@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ChangeFeedSubscriber": {
+      "commandName": "Project",
+      "commandLineArgs": "host start --cors *"
+    }
+  }
+}
